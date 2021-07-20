@@ -6,6 +6,10 @@ use Whoops\Handler\PlainTextHandler;
 use Whoops\Handler\PrettyPageHandler;
 use Whoops\Run;
 
+if ( ! function_exists( 'get_plugins' ) ) {
+    require_once ABSPATH . 'wp-admin/includes/plugin.php';
+}
+
 /**
  * Main plugin's class.
  */
@@ -55,6 +59,9 @@ class Plugin extends Container {
 
 				return get_object_vars( $post );
 			},
+			'Activated Plugins'     => function () {
+				return array_filter(array_keys(get_plugins()), 'is_plugin_active');
+			}
 		);
 
 		$defaults['handler.pretty'] = function ( $plugin ) {
@@ -63,9 +70,6 @@ class Plugin extends Container {
 			foreach ( $plugin['tables'] as $name => $callback ) {
 				$handler->addDataTableCallback( $name, $callback );
 			}
-
-			// Requires Remote Call plugin.
-			$handler->addEditor( 'phpstorm-remote-call', 'http://localhost:8091?message=%file:%line' );
 
 			return $handler;
 		};
